@@ -46,17 +46,24 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "podinfo.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "podinfo.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "podinfo.fullname" . }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
 {{- define "podinfo.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
+{{- if .Values.serviceAccount.enabled }}
 {{- default (include "podinfo.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
+{{- end }}
+
+{{/*
+Create the name of the tls secret for secure port
+*/}}
+{{- define "podinfo.tlsSecretName" -}}
+{{- $fullname := include "podinfo.fullname" . -}}
+{{- default (printf "%s-tls" $fullname) .Values.tls.secretName }}
 {{- end }}
